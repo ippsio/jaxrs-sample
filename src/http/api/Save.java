@@ -1,13 +1,14 @@
 package http.api;
 
 import java.util.Date;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,11 +21,13 @@ import http.ws.WSEndpoint;
 public class Save {
 	private static ObjectMapper om = new ObjectMapper();
 
-	@Context private javax.servlet.http.HttpServletRequest requeset;
+	@Context
+	private javax.servlet.http.HttpServletRequest requeset;
+
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String save(@QueryParam("broaker") String broaker, @QueryParam("symbol") String symbol,
-			@QueryParam("bid") double bid, @QueryParam("ask") double ask, @QueryParam("digits") double digits) {
+			@QueryParam("bid") double bid, @QueryParam("ask") double ask, @QueryParam("close") double close, @QueryParam("digits") int digits) {
 
 		// TODO: Requester validation checking.
 		//System.out.println(requeset.getRemoteAddr());
@@ -39,7 +42,7 @@ public class Save {
 			String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(prices);
 
 			// WebSocketのブロードキャストメッセージとして設定し、その後ブロードキャスト
-			WSEndpoint.updateBroadcastMessage(json);
+			WSEndpoint.updateBroadcastMessage(symbol, json);
 			WSEndpoint.broadcast(symbol);
 
 			return json;
